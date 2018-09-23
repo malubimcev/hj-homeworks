@@ -5,5 +5,4 @@
 ## Описание
 
 Нужно исправить реализацию и сделать так, чтобы при клике на кнопку «Открыть» конверт открывался. При повторном клике конверт должен закрываться:
-
-![Открывающийся конверт](https://github.com/malubimcev/hj-homeworks/blob/master/browser/errors/index.html)
+https://github.com/malubimcev/hj-homeworks/blob/master/browser/errors/index.html
