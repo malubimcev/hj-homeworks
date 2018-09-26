@@ -42,3 +42,6 @@ function showPrev() {
 
 nextButton.onclick = showNext;
 prevButton.onclick = showPrev;
+
+//отображаем первое фото:
+showPhoto();
