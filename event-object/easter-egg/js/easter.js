@@ -9,7 +9,7 @@ function openMenu(event) {
     nav.classList.toggle('visible');
   }
   if (event.type === 'keypress') {
-    handleKey(event.key);
+    handleKey(event.code);
   }
 }
 
@@ -27,8 +27,9 @@ function setEvents() {
   document.addEventListener('click', closeMenu);
 }
 
-function handleKey(char) {
-  const secretCode = 'НЕТОЛОГИЯ';
+function handleKey(code) {
+  const secretCode = 'YTNJKJUBZ';//НЕТОЛОГИЯ
+  const char = code.replace('Key', '');
 
   function saveChar(currentChar) {
     currentCode += currentChar.toUpperCase();
@@ -37,7 +38,7 @@ function handleKey(char) {
     }
     return currentCode;
   }
-  
+
   if (saveChar(char).indexOf(secretCode) > -1) {
     showSecret();
   }
