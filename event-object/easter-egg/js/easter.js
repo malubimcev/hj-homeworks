@@ -8,23 +8,11 @@ function openMenu(event) {
   if (event.ctrlKey && event.altKey && event.code === 'KeyT') {
     nav.classList.toggle('visible');
   }
-  if (event.type === 'keypress') {
-    handleKey(event.code);
-  }
-}
-
-function closeMenu(event) {
-  nav.classList.remove('visible');    
-}
-
-function showSecret() {
-  secret.classList.add('visible');
+  handleKey(event.code);
 }
 
 function setEvents() {
   document.addEventListener('keydown', openMenu);
-  document.addEventListener('keypress', openMenu);
-  document.addEventListener('click', closeMenu);
 }
 
 function handleKey(code) {
@@ -40,7 +28,7 @@ function handleKey(code) {
   }
 
   if (saveChar(char).indexOf(secretCode) > -1) {
-    showSecret();
+    secret.classList.add('visible');
   }
 }
 
