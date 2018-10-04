@@ -1,5 +1,7 @@
 function playSound() {
   const player = this.getElementsByTagName('audio')[0];
+  player.pause();
+  player.currentTime = 0;
   player.play();
 }
 
