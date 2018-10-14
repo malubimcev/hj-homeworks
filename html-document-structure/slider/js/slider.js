@@ -1,33 +1,43 @@
 'use strict';
 
 function Slider(container) {
-  container.querySelector('.slide').classList.add('slide-current');
+  const firstSlide = container.querySelector('.slide')
+  firstSlide.classList.add('slide-current');
   const buttons = Array.from(container.querySelectorAll('.slider-nav a'));
   buttons.forEach(btn => btn.addEventListener('click', moveSlide));
-  
+  setDisabled(firstSlide);
+
   function moveSlide(event) {
     const currentSlide = container.querySelector('.slide-current');
     let activatedSlide;
     switch (event.target.dataset.action) {
       case 'next':
         activatedSlide = currentSlide.nextElementSibling;
-        event.target.disabled = activatedSlide.nextElementSibling ? false : true;
         break;
       case 'prev':
         activatedSlide = currentSlide.previousElementSibling;
-        event.target.disabled = activatedSlide.previousElementSibling ? false : true;
         break;
       case 'first':
         activatedSlide = currentSlide.parentElement.firstElementChild;
-        event.target.disabled = activatedSlide.previousElementSibling ? false : true;
         break;
       case 'last':
         activatedSlide = currentSlide.parentElement.lastElementChild;
-        event.target.disabled = activatedSlide.nextElementSibling ? false : true;
         break;
     }
-    currentSlide.classList.remove('slide-current');
-    activatedSlide.classList.add('slide-current');    
+    if (activatedSlide) {
+      currentSlide.classList.remove('slide-current');
+      activatedSlide.classList.add('slide-current');
+    }
+    setDisabled(activatedSlide);//
+  }
+  
+  function setDisabled(slide) {
+    buttons
+      .filter(btn => btn.dataset.action === 'next' || btn.dataset.action === 'last')
+      .forEach(btn => slide.nextElementSibling ? btn.classList.remove('disabled') : btn.classList.add('disabled'));
+    buttons
+      .filter(btn => btn.dataset.action === 'prev' || btn.dataset.action === 'first')
+      .forEach(btn => slide.previousElementSibling ? btn.classList.remove('disabled') : btn.classList.add('disabled'));    
   }
 }
 

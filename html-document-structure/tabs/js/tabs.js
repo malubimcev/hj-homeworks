@@ -9,8 +9,9 @@ function TabSelector(container) {
     const tabProto = nav.firstElementChild;
     for (const article of articles) {
       const newTab = tabProto.cloneNode(true);
-      newTab.textContent = article.dataset.tabTitle;
-      newTab.classList.add(article.dataset.tabIcon);
+      const link = newTab.firstElementChild;
+      link.textContent = article.dataset.tabTitle;
+      link.classList.add(article.dataset.tabIcon);
       nav.appendChild(newTab);
       nav.lastElementChild.addEventListener('click', (event) => activateTab(event.currentTarget));
       article.classList.add('hidden');
@@ -22,15 +23,15 @@ function TabSelector(container) {
   function activateTab(tab) {
     const tabs = tab.parentElement.querySelectorAll('li');
     for (const item of tabs) {
-  	  item.classList.remove('ui-tabs-active');
+      item.classList.remove('ui-tabs-active');
     }
     tab.classList.add('ui-tabs-active');
     for (const art of articles) {
       if (art.dataset.tabTitle === tab.textContent) {
-  	     art.classList.remove('hidden');
-  	  } else {
-  	    art.classList.add('hidden');
-  	  }
+         art.classList.remove('hidden');
+      } else {
+        art.classList.add('hidden');
+      }
     }
   }  
   
