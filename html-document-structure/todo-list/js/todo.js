@@ -11,8 +11,8 @@ function TodoList(container) {
 
   function updateList(event) {
     const task = event.target;
-    // const targetList = task.checked ? doneList : undoneList;//так работает только в одну сторону
-    const targetList = task.parentElement ===  doneList ? undoneList : doneList;
+    const targetList = task.firstElementChild.checked ? doneList : undoneList;
+    // const targetList = task.parentElement ===  doneList ? undoneList : doneList;
     targetList.appendChild(task);
   } 
 }
