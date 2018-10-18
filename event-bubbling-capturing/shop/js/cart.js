@@ -1,15 +1,12 @@
 'use strict';
 
 const productList = document.querySelector('.items-list');
-productList.addEventListener('click', onProductListClick, true);
+productList.addEventListener('click', onButtonClick, true);
 
-function onProductListClick(event) {
-  const addButtons = Array.from(productList.querySelectorAll('.add-to-cart'));
-  addButtons.forEach(btn => btn.addEventListener('click', onAddButtonClick));
-}
-
-function onAddButtonClick(event) {
+function onButtonClick(event) {
   const btn = event.target;
-  addToCart({title: btn.dataset.title, price: btn.dataset.price});
-  event.stopPropagation();
+  if (btn.className === 'add-to-cart') {
+    addToCart({title: btn.dataset.title, price: btn.dataset.price});
+    event.stopPropagation();
+  }
 }

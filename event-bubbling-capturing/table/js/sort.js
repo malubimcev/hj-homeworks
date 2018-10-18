@@ -1,9 +1,10 @@
 'use strict';
 
 function handleTableClick(event) {
-  const header = event.target.tagName === 'TH' ? event.target : event.currentTarget;
-  const table = document.querySelector('table');//
-  table.dataset.sortBy = header.dataset.propName;
-  header.dataset.dir ? header.dataset.dir *= -1 : header.dataset.dir = 1;
-  sortTable(event.currentTarget.dataset.sortBy, header.dataset.dir);
+  if (event.target.tagName === 'TH') {
+    const table = document.querySelector('table');
+    table.dataset.sortBy = event.target.dataset.propName;
+    event.target.dataset.dir ? event.target.dataset.dir *= -1 : event.target.dataset.dir = 1;
+    sortTable(event.currentTarget.dataset.sortBy, event.target.dataset.dir);    
+  }
 }
