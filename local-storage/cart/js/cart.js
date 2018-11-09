@@ -5,92 +5,59 @@ const colorSwatch = form.querySelector('#colorSwatch');
 const sizeSwatch = form.querySelector('#sizeSwatch');
 const cart = document.querySelector('#quick-cart');
 const addButton = form.querySelector('#AddToCart');
-const removeButton = form.querySelector('.remove');
-let colors, sizes=[{'title':'S','type':'s','isAvailable':false},{'title':'M','type':'m','isAvailable':true},{'title':'L','type':'l','isAvailable':true},{'title':'XL','type':'xl','isAvailable':true},{'title':'XXL','type':'xxl','isAvailable':false}], products;
 
-addButton.addEventListener('click', () => sendForm(form));
+const urls = [
+  'https://neto-api.herokuapp.com/cart/colors',
+  'https://neto-api.herokuapp.com/cart/sizes',
+  'https://neto-api.herokuapp.com/cart'
+];
+
+addButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  sendForm(form);
+});
+
+function updateCart(data, url) {
+  fetch(url, {
+    body: data,
+    method: 'POST'
+  })
+    .then(res => {
+      if (200 <= res.status && res.status < 300) {
+        return res.json();
+      }
+      throw new Error(res.statusText);
+    })
+    .then(outputCart)
+    .catch(err => console.log('Ошибка обновления корзины: ' + err.message));  
+}
 
 function sendForm(form) {
-  const xhr = new XMLHttpRequest();
-  const data = getJSON(form);
-  xhr.addEventListener('load', () => onResponseLoad(xhr.response));
-  xhr.addEventListener('error', () => console.log('xhr error: ' + xhr.error.message));
-  xhr.open('POST', getURL(''), true);
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.send(data);
-}
-
-function getJSON(form) {
   const formData = new FormData(form);
   formData.append('productId', form.dataset.productId);
-  const data = {};
-  for (const [key, value] of formData) {
-    data[key] = value;
-  }
-  return JSON.stringify(data);
+  updateCart(formData, urls[2]);
 }
 
-function getURL(category) {
-  const url = 'https://neto-api.herokuapp.com/';
-  return url + category;
+function removeProduct(id) {
+  const data = new FormData();
+  data.append('productId', id);
+  updateCart(data, urls[2] + '/remove');
 }
 
-function parseJSON(json) {
-  try {
-    console.log(json);
-    return JSON.parse(json);
-  } catch (err) {
-    console.log('JSON.parse error: ' + err.message);
-    return null;
-  }
-}
-
-function onResponseLoad(response) {
-  const result = parseJSON(response);
-  if (result) {
-    updateCart(result);
-  }
-}
-
-function loadColors() {
-  loadData('cart/colors', colors, outputColors);
-}
-
-function loadSizes() {
-  loadData('cart/sizes', sizes, outputSizes);
-}
-
-function loadProducts() {
-  loadData('cart', products, updateCart);
-}
-
-function loadData(type, array, callback) {
-  const xhr = new XMLHttpRequest();
-  xhr.addEventListener('load', () => {
-    array = parseJSON(xhr.response);
-    callback();
-  });
-  xhr.addEventListener('error', () => console.log('xhr error: ' + xhr.error.message));
-  xhr.open('GET', getURL(type), true);
-  xhr.send();
-  // fetch(getURL(type))
-  //   .then((res) => {
-  //     if (200 <= res.status && res.status < 300) {
-  //       return res.json();
-  //     }
-  //     throw new Error(res.statusText);
-  //     })
-  //   .then((res) => {
-  //     array = parseJSON(res);
-  //     callback();
-  //   })
-  //   .catch(err => console.log('fetch error: ' + err.message));  
+function loadData(url) {
+  return fetch(url)
+    .then(res => {
+      if (200 <= res.status && res.status < 300) {
+        return res.json();
+      }
+      throw new Error(res.statusText);
+    })
 }
 
 function colorSnippet(color) {
   return `<div data-value="${color.type}" class="swatch-element color ${color.type} ${color.isAvailable ? 'available' : 'soldout'}">
     <div class="tooltip">${color.title}</div>
-    <input quickbeam="color" id="swatch-1-${color.type}" type="radio" name="color" value="${color.type}" checked>
+    <input quickbeam="color" id="swatch-1-${color.type}" type="radio" name="color" value="${color.type}">
     <label for="swatch-1-${color.type}" style="border-color: ${color.code};">
       <span style="background-color: ${color.type};"></span>
       <img class="crossed-out" src="https://neto-api.herokuapp.com/hj/3.3/cart/soldout.png?10994296540668815886">
@@ -121,7 +88,7 @@ function productSnippet(product) {
 }
 
 function cartSnippet(summ) {
-  return `<a id="quick-cart-pay" quickbeam="cart-pay" class="cart-ico open">
+  return `<a id="quick-cart-pay" quickbeam="cart-pay" class="cart-ico ${summ === 0 ? '' : 'open'}">
     <span>
       <strong class="quick-cart-text">Оформить заказ<br></strong>
       <span id="quick-cart-price">${summ}</span>
@@ -129,22 +96,74 @@ function cartSnippet(summ) {
   </a>`;
 }
 
-function outputColors() {
-  console.log(colors.length);
-  colorSwatch.innerHTML = colors.map(color => colorSnippet(color)).join('');
+function saveColor(event) {
+  if (event.target.checked) {
+    localStorage.setItem('color', event.target.value);
+  }
 }
 
-function outputSizes() {
-  sizeSwatch.innerHTML = sizes.map(size => sizeSnippet(size)).join('');
+function saveSize(event) {
+  if (event.target.checked) {
+    localStorage.setItem('size', event.target.value);
+  }
 }
 
-function updateCart() {
-  cart.innerHTML = products.map(product => productSnippet(product)).join('');
-  cart.querySelector('.count').textContent = products.length;
-  const summ = products.reduce((sum, elem) => {sum += elem.price}, 0);
-  cart.appendChild(cartSnippet(summ));
+function outputColors(colors) {
+  colorSwatch.innerHTML += colors.map(color => colorSnippet(color)).join('');
+  const savedColor = localStorage.getItem('color');
+  if (savedColor) {
+    const colorElements = colorSwatch.querySelectorAll('input');
+    for (const elem of colorElements) {
+      elem.checked = elem.value === savedColor;
+    };
+  }
 }
 
-loadColors();
-loadSizes();
-loadProducts();
+function outputSizes(sizes) {
+  sizeSwatch.innerHTML += sizes.map(size => sizeSnippet(size)).join('');
+  const savedSize = localStorage.getItem('size');
+  if (savedSize) {
+    const sizeElements = sizeSwatch.querySelectorAll('input');
+    for (const elem of sizeElements) {
+      elem.checked = elem.value === savedSize;
+    };
+  }
+}
+
+function outputCart(products) {
+  let totalPrice = 0;
+  if (!products || products.error || products.length === 0) {
+    cart.innerHTML = '';
+  } else {
+    cart.innerHTML = productSnippet(products[0]);
+    cart.querySelector('.count').textContent = products[0].quantity;
+    totalPrice = products[0].price * products[0].quantity;
+  }
+  cart.innerHTML += cartSnippet(totalPrice);
+  if (!products.error && products.length > 0) {  
+    const removeButton = cart.querySelector('.remove');
+    removeButton.addEventListener('click', (event) => {
+      removeProduct(event.target.dataset.id);
+    });
+  }
+}
+
+Promise.all(urls.map(loadData))
+  .then(([
+    colors,
+    sizes,
+    products
+  ]) => {
+    outputColors(colors);
+    const colorElements = colorSwatch.querySelectorAll('input');
+    for (const color of colorElements) {
+      color.addEventListener('change', saveColor);
+    }
+    outputSizes(sizes);
+    const sizeElements = sizeSwatch.querySelectorAll('input');
+    for (const size of sizeElements) {
+      size.addEventListener('change', saveSize);
+    }
+    outputCart(products);
+  })
+  .catch(err => console.log('Ошибка загрузки данных: ' + err.message));
