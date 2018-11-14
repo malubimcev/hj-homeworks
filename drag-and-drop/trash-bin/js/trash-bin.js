@@ -25,10 +25,12 @@ document.addEventListener('mouseup', event => {
     icon.style.visibility = 'hidden';
     const place = document.elementFromPoint(event.clientX, event.clientY);
     icon.style.visibility = 'visible';
+    place.appendChild(icon);
+    icon.classList.remove('moving');
     if (place === trash) {
-      place.appendChild(icon);
-      icon.classList.remove('moving');
       icon.style.display = 'none';
+    } else {
+      icon = null;
     }
   }
 });

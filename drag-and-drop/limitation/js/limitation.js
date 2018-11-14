@@ -3,6 +3,7 @@
 const block = document.querySelector('.block');
 const message = document.querySelector('.message');
 const textarea = document.querySelector('.textarea');
+let timeout;
 
 const onStop = debounce(() => {
   block.classList.remove('active');
@@ -17,11 +18,14 @@ const onPrinting = () => {
 textarea.addEventListener('keydown', onPrinting);
 textarea.addEventListener('keyup', onStop);
 textarea.addEventListener('focus', onPrinting);
-textarea.addEventListener('blur', () => block.classList.remove('active'));
+textarea.addEventListener('blur', (e) => {
+  clearTimeout(timeout);
+  block.classList.remove('active');
+  message.classList.remove('view');
+});
 
 
 function debounce(callback,  delay) {
-  let timeout;
   return () => {
     clearTimeout(timeout);
     timeout = setTimeout(function() {
