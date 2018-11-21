@@ -39,18 +39,31 @@ class iLayout {
   
   loadImage(file, container) {
     const img = document.createElement('img');
-    img.addEventListener('load', event => {
-      URL.revokeObjectURL(event.currentTarget.result);
+    const tmpImg = new Image();
+    const canvas = document.createElement('canvas');
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    const ctx = canvas.getContext('2d');
+    const reader = new FileReader();
+    img.addEventListener('load', (event) => {
+      addClass('layout__image', img);
+      for (const prop in this.layout) {
+        const className = 'layout__item_' + prop;
+        if (hasClass(className, container)) {
+          this.layout[prop] = img;
+        }
+      }      
     });
-    img.src = URL.createObjectURL(file);
-    addClass('layout__image', img);
+    tmpImg.addEventListener('load', (event) => {
+      ctx.drawImage(tmpImg, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+      img.src = canvas.toDataURL();
+    });
+    reader.addEventListener('loadend', (event) => {
+      tmpImg.src = event.currentTarget.result;
+    });
+    reader.readAsDataURL(file);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);    
     container.appendChild(img);
-    for (const prop in this.layout) {
-      const className = 'layout__item_' + prop;
-      if (hasClass(className, container)) {
-        this.layout[prop] = img;
-      }
-    }
   }
   
   makeLayout() {
@@ -59,17 +72,6 @@ class iLayout {
     canvas.height = this.positionsContainer.clientHeight;
     const ctx = canvas.getContext('2d');
     let dx = 0, dy = 0, newWidth = 0, newHeight = 0;
-/*    for (const prop in this.layout) {
-          const img = this.layout[prop];
-          const container = img.parentElement;
-          console.log(`=${img.outerHTML} ==${container.style.left}`);
-          dx = container.style.left;
-          dy = container.style.top;
-          console.log(`dx=${dx} dy=${dy}`);
-          newWidth = container.offsetWidth;
-          newHeight = container.offsetHeight;
-          ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, newWidth, newHeight);
-        } */
     
     let img = this.layout.left;
     let container = img.parentElement;
